@@ -2,9 +2,8 @@ import React, {Component} from 'react';
 import { Text, View, Button, FlatList } from 'react-native';
 import { TabNavigator  } from 'react-navigation';
 import ToDoList from './components/ToDoList';
+import Post from './components/Post';
 import AnimComponent from './components/AnimComponent';
-
-
 
 const NAV_SCREENS = {
   'HOME': 'Home',
@@ -13,10 +12,9 @@ const NAV_SCREENS = {
 }
 
 class HomeScreen extends Component {
-
+  
   render() {
     const { navigation } = this.props;
-
     return (
 
       <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
@@ -41,7 +39,7 @@ class FirstScreen extends Component {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         
         <AnimComponent duration={1000} ref={elem => this.animComponent = elem}>
-          <Text>2d Screen!</Text>
+          <Text>1st Screen!</Text>
         </AnimComponent>  
       </View>
     );
@@ -49,10 +47,37 @@ class FirstScreen extends Component {
 }
 
 class SecondScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: []
+    };
+  }
+
+  componentWillMount() {
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'GET',
+      headers: {'content-type': 'application/json'},
+    })
+    .then((resp) => resp.json())  
+    .then(posts => this.setState( {data : posts}))
+  }
+
+  _renderItem = ({ item }) => {
+    return <View key={item.id} >
+    <Post key={item.id} post={item} />
+    </View>
+  }
+
   render() {
+    const { data } = this.state;
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>3d Screen!</Text>
+      <FlatList 
+          data={data}
+          keyExtractor={(item) => item.id.toString() }
+          renderItem={this._renderItem}
+        />
       </View>
     );
   }
